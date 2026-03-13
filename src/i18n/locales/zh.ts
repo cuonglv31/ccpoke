@@ -234,12 +234,17 @@ export const zh: TranslationKeys = {
   },
   chat: {
     placeholder: "给 Claude 发消息...",
+    placeholderCursor: "/plan /ask /clear /compress /model",
     replyHint: "在下方输入消息 ↓",
+    commandsHintCursor:
+      "Cursor: /plan, /ask, /clear, /compress, /model, /auto-run, /debug, /max-mode, /vim",
     directMessageHint: "不支持直接发消息。请使用通知或 /sessions 中的 💬 Chat 按钮。",
     sessionExpired: "会话已过期或关闭",
     sessionNotFound: "未找到会话",
     tmuxDead: "tmux 会话已断开",
-    sent: "📩 已发送 → {project}",
+    sent: "📩 已发送 → {project}。代理完成后将收到回复。",
+    processing: "📩 已发送 → {project}。正在处理…",
+    processingElapsed: "⏳ 正在处理 {project}…（{elapsed}）",
     busy: "⏳ Claude 正在忙 — 请稍后再试",
     cancelButton: "取消",
     cancelled: "已取消",

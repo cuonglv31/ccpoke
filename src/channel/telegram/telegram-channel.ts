@@ -23,6 +23,7 @@ import type { ChannelDeps, NotificationChannel, NotificationData } from "../type
 import { AskQuestionHandler } from "./ask-question-handler.js";
 import { escapeMarkdownV2, isInlineMessage, markdownToTelegramV2 } from "./escape-markdown.js";
 import { PendingReplyStore } from "./pending-reply-store.js";
+import { PendingResponseTracker } from "./pending-response-tracker.js";
 import { PermissionRequestHandler } from "./permission-request-handler.js";
 import { formatProjectList } from "./project-list.js";
 import { PromptHandler } from "./prompt-handler.js";
@@ -49,6 +50,7 @@ export class TelegramChannel implements NotificationChannel {
   private askQuestionHandler: AskQuestionHandler | null = null;
   private permissionRequestHandler: PermissionRequestHandler | null = null;
   private processedUpdateIds = new Map<string, number>();
+  private pendingResponseTracker: PendingResponseTracker;
 
   constructor(cfg: Config, deps?: ChannelDeps) {
     this.cfg = cfg;
@@ -98,6 +100,12 @@ export class TelegramChannel implements NotificationChannel {
         this.tmuxBridge
       );
     }
+
+    this.pendingResponseTracker = new PendingResponseTracker(
+      this.bot,
+      this.sessionMap,
+      (key, params) => t(key, params as Record<string, string | number>)
+    );
   }
 
   async initialize(): Promise<void> {
@@ -132,6 +140,7 @@ export class TelegramChannel implements NotificationChannel {
     this.askQuestionHandler?.destroy();
     this.permissionRequestHandler?.destroy();
     this.pendingReplyStore.destroy();
+    this.pendingResponseTracker.destroy();
     if (this.reconnectTimer) clearTimeout(this.reconnectTimer);
     if (this.heartbeatInterval) clearInterval(this.heartbeatInterval);
     this.bot.stopPolling();
@@ -336,16 +345,23 @@ export class TelegramChannel implements NotificationChannel {
           return;
         }
 
+        const isCursor = session.agent === AgentName.Cursor;
+        const hint = isCursor
+          ? `${t("chat.replyHint")}\n\n${t("chat.commandsHintCursor")}`
+          : t("chat.replyHint");
+        const placeholder = isCursor
+          ? t("chat.placeholderCursor")
+          : `${session.project} → ${AGENT_DISPLAY_NAMES[session.agent] ?? "Agent"}`;
         const sent = await this.bot.sendMessage(
           query.message.chat.id,
-          `💬 *${escapeMarkdownV2(session.project)}*\n${escapeMarkdownV2(t("chat.replyHint"))}`,
+          `💬 *${escapeMarkdownV2(session.project)}*\n${escapeMarkdownV2(hint)}`,
           {
             parse_mode: "MarkdownV2",
             reply_to_message_id: query.message.message_id,
             reply_markup: {
               force_reply: true,
               selective: true,
-              input_field_placeholder: `${session.project} → Claude`,
+              input_field_placeholder: placeholder,
             },
           }
         );
@@ -445,7 +461,16 @@ export class TelegramChannel implements NotificationChannel {
 
       if ("sent" in result) {
         logger.debug(`[Chat:result] sent → sessionId=${pending.sessionId}`);
-        await this.bot.sendMessage(msg.chat.id, t("chat.sent", { project: pending.project }));
+        const sent = await this.bot.sendMessage(
+          msg.chat.id,
+          t("chat.processing", { project: pending.project })
+        );
+        this.pendingResponseTracker.add(
+          msg.chat.id,
+          sent.message_id,
+          pending.sessionId,
+          pending.project
+        );
       } else if ("busy" in result) {
         logger.debug(`[Chat:result] busy → sessionId=${pending.sessionId}`);
         await this.bot.sendMessage(msg.chat.id, t("chat.busy"));

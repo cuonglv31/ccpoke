@@ -220,12 +220,16 @@ export interface TranslationKeys {
   };
   chat: {
     placeholder: string;
+    placeholderCursor: string;
     replyHint: string;
+    commandsHintCursor: string;
     directMessageHint: string;
     sessionExpired: string;
     sessionNotFound: string;
     tmuxDead: string;
     sent: string;
+    processing: string;
+    processingElapsed: string;
     busy: string;
     cancelButton: string;
     cancelled: string;

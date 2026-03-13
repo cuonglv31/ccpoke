@@ -237,13 +237,18 @@ export const en: TranslationKeys = {
   },
   chat: {
     placeholder: "Message to Claude...",
+    placeholderCursor: "/plan /ask /clear /compress /model",
     replyHint: "Type your message below ↓",
+    commandsHintCursor:
+      "Cursor: /plan, /ask, /clear, /compress, /model, /auto-run, /debug, /max-mode, /vim",
     directMessageHint:
       "Direct messages are not supported. Use the 💬 Chat button on a notification or in /sessions.",
     sessionExpired: "Session expired or closed",
     sessionNotFound: "Session not found",
     tmuxDead: "tmux session disconnected",
-    sent: "📩 Sent → {project}",
+    sent: "📩 Sent → {project}. Response will arrive when agent completes.",
+    processing: "📩 Sent → {project}. Processing…",
+    processingElapsed: "⏳ Processing {project}… ({elapsed})",
     busy: "⏳ Claude is busy — try again later",
     cancelButton: "Cancel",
     cancelled: "Cancelled",

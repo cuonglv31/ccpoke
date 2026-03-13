@@ -237,13 +237,18 @@ export const vi: TranslationKeys = {
   },
   chat: {
     placeholder: "Nhắn cho Claude...",
+    placeholderCursor: "/plan /ask /clear /compress /model",
     replyHint: "Nhập tin nhắn bên dưới ↓",
+    commandsHintCursor:
+      "Cursor: /plan, /ask, /clear, /compress, /model, /auto-run, /debug, /max-mode, /vim",
     directMessageHint:
       "Không thể nhắn trực tiếp. Hãy dùng nút 💬 Chat trên thông báo hoặc trong /sessions.",
     sessionExpired: "Session đã hết hạn hoặc đóng",
     sessionNotFound: "Không tìm thấy session",
     tmuxDead: "tmux session đã ngắt kết nối",
-    sent: "📩 Đã gửi → {project}",
+    sent: "📩 Đã gửi → {project}. Phản hồi sẽ đến khi agent hoàn thành.",
+    processing: "📩 Đã gửi → {project}. Đang xử lý…",
+    processingElapsed: "⏳ Đang xử lý {project}… ({elapsed})",
     busy: "⏳ Claude đang bận — thử lại sau",
     cancelButton: "Hủy",
     cancelled: "Đã hủy",
