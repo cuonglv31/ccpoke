@@ -45,7 +45,8 @@ const AGENT_PATTERNS: AgentProcessPattern[] = [
   },
   {
     name: AgentName.Cursor,
-    processPattern: /\bcursor\b/i,
+    // Cursor CLI binary is "agent", not "cursor" (agent --force)
+    processPattern: /\b(agent|cursor)\b/i,
   },
   {
     name: AgentName.Codex,
